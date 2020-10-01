@@ -1,2 +1,2 @@
-# clipshareserver
+# ClipShare
 Backend server for ClipShare
