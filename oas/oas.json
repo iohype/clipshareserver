@@ -26,6 +26,84 @@
     }
   ],
   "paths": {
-
+    "/clips": {
+      "get": {
+        "summary": "Get clips",
+        "description": "Get shared clips for authed user",
+        "operationId": "clips/get",
+        "parameters": [
+          {
+            "name":"since",
+            "description": "Get all clips shared after specified time. This is a unix timestamp",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "1601620291"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/clip"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/requires_authentication"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "clip": {
+        "title": "Clip",
+        "description": "Clip Item",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          }
+        }
+      },
+      "basic-error": {
+        "title": "Basic Error",
+        "description": "A Basic Error",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "requires_authentication": {
+        "description": "Requires Authentication",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/basic-error"
+            }
+          }
+        }
+      }
+    }
   }
 }
