@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
-	"net/http"
 )
 
 func main() {
@@ -12,8 +12,11 @@ func main() {
 }
 
 func run() error {
-	srv := newServer()
-	err := http.ListenAndServe(":8080", srv)
+	srv := &server{
+		Addr: ":8080",
+		router: mux.NewRouter(),
+	}
+	err := start(srv)
 	if err != nil {
 		return err
 	}
