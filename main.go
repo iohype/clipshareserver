@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"log"
+	"net"
+	"os"
 )
 
 func main() {
@@ -13,7 +15,7 @@ func main() {
 
 func run() error {
 	srv := &server{
-		Addr: ":8080",
+		Addr: getAddr(),
 		router: mux.NewRouter(),
 	}
 	err := start(srv)
@@ -21,4 +23,12 @@ func run() error {
 		return err
 	}
 	return nil
+}
+
+func getAddr() string {
+	port, ok := os.LookupEnv("PORT")
+	if !ok {
+		return ":8080"
+	}
+	return net.JoinHostPort("", port)
 }
