@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -11,5 +12,10 @@ func main() {
 }
 
 func run() error {
+	srv := newServer()
+	err := http.ListenAndServe(":8080", srv)
+	if err != nil {
+		return err
+	}
 	return nil
 }
