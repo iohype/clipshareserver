@@ -1,0 +1,31 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "0.0.1",
+    "title": "ClipShare v1 API",
+    "description": "ClipShare v1 API",
+    "contact": {
+      "email": "vaguemail369@gmail.com",
+      "name": "IOHype",
+      "url": "https://github.com/iohype"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://spdx.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "localhost:{port}",
+      "variables": {
+        "port": {
+          "default": "8080",
+          "description": "Port to run the server on"
+        }
+      }
+    }
+  ],
+  "paths": {
+
+  }
+}
