@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -36,5 +37,5 @@ func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func verifyToken(idToken string) (string, error) {
-	return "", nil
+	return "", fmt.Errorf("not implemented")
 }
