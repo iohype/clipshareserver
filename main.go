@@ -18,11 +18,7 @@ func run() error {
 		Addr: getAddr(),
 		router: mux.NewRouter(),
 	}
-	err := start(srv)
-	if err != nil {
-		return err
-	}
-	return nil
+	return start(srv)
 }
 
 func getAddr() string {
