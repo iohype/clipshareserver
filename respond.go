@@ -8,7 +8,7 @@ import (
 
 func (s *server) Error(w http.ResponseWriter, r *http.Request, err error, statusCode int) {
 	v := &struct {
-		Error string `json:"error"`
+		Message string `json:"message"`
 	}{
 		err.Error(),
 	}
