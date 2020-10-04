@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net"
 	"os"
@@ -8,17 +9,18 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
+	if err := run(os.Stdout); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run() error {
+//run the app using out as the standard output
+func run(out io.Writer) error {
 	srv := &server{
 		Addr: getAddr(),
 	}
 	// Wrap the server's router with a logging middleware
-	srv.handler = handlers.LoggingHandler(os.Stdout, srv.getRouter())
+	srv.handler = handlers.LoggingHandler(out, srv.getRouter())
 	return start(srv)
 }
 
