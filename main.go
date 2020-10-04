@@ -19,8 +19,8 @@ func run(out io.Writer) error {
 	srv := &server{
 		Addr: getAddr(),
 	}
-	// Wrap the server's router with a logging middleware
-	srv.handler = handlers.LoggingHandler(out, srv.getRouter())
+	// Wrap the server's routes with a logging middleware
+	srv.handler = handlers.LoggingHandler(out, srv.routes())
 	return start(srv)
 }
 
