@@ -1,20 +1,18 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
 type server struct{
 	Addr string
-	router *mux.Router
+	handler http.Handler
 }
 
 func start(srv *server) error {
-	srv.setupRoutes()
 	log.Printf("Starting server on %s", srv.Addr)
-	err := http.ListenAndServe(srv.Addr, srv.router)
+	err := http.ListenAndServe(srv.Addr, srv)
 	if err != nil {
 		return err
 	}
@@ -22,5 +20,5 @@ func start(srv *server) error {
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.router.ServeHTTP(w, r)
+	s.handler.ServeHTTP(w, r)
 }
