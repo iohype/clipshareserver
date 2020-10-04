@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"strings"
 	"sync"
 )
+
+// Key to retrieve uid from a context
+type uidKey struct{}
 
 //handleAuthed is a middleware that allows the request only if user is logged in
 func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
@@ -18,7 +22,7 @@ func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
 		idToken = strings.TrimPrefix("Bearer", idToken)
 		idToken = strings.TrimSpace(idToken)
 		srw.RLock()
-		_, ok := authedCache[idToken]
+		uid, ok := authedCache[idToken]
 		srw.RUnlock()
 		if !ok {
 			// idToken not in cache, try firebase auth
@@ -31,7 +35,9 @@ func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
 			authedCache[idToken] = uid
 			srw.Unlock()
 		}
-		next(w, r)
+		// Pass the uid down
+		ctx := context.WithValue(r.Context(), uidKey{}, uid)
+		next(w, r.WithContext(ctx))
 	}
 }
 
