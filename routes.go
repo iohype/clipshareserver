@@ -1,11 +1,18 @@
 package main
 
-import "net/http"
+import (
+	"github.com/gorilla/mux"
+	"net/http"
+)
 
-func (s *server) setupRoutes() {
+func (s *server) getRouter() http.Handler {
+	r := mux.NewRouter()
+	// Register paths
 	// GET /clips
-	s.router.HandleFunc(
+	r.HandleFunc(
 		"/clips",
 		s.handleAuthed(s.handleClipsGet()),
 	).Methods(http.MethodGet)
+
+	return r
 }
