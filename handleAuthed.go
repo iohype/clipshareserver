@@ -11,7 +11,7 @@ import (
 func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
 	// Cache hit prevents asking FirebaseAuth to verify id token
 	var (
-		srw sync.RWMutex
+		srw         sync.RWMutex
 		authedCache = make(map[string]string)
 	)
 	return func(w http.ResponseWriter, r *http.Request) {

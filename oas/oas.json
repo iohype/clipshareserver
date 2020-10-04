@@ -33,7 +33,7 @@
         "operationId": "clips/get",
         "parameters": [
           {
-            "name":"since",
+            "name": "since",
             "description": "Get all clips shared after specified time. This is a unix timestamp",
             "in": "query",
             "required": false,

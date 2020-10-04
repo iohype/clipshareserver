@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/gorilla/handlers"
 	"io"
 	"log"
 	"net"
 	"os"
-	"github.com/gorilla/handlers"
 )
 
 func main() {
