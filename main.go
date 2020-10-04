@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net"
 	"os"
+	"github.com/gorilla/handlers"
 )
 
 func main() {
@@ -16,8 +16,9 @@ func main() {
 func run() error {
 	srv := &server{
 		Addr: getAddr(),
-		router: mux.NewRouter(),
 	}
+	// Wrap the server's router with a logging middleware
+	srv.handler = handlers.LoggingHandler(os.Stdout, srv.getRouter())
 	return start(srv)
 }
 
