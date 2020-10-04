@@ -11,6 +11,7 @@ type server struct {
 	Addr    string
 	handler http.Handler
 	db      DB
+	logger  *log.Logger
 }
 
 //newServer returns a server after applying all options
@@ -29,6 +30,12 @@ func start(srv *server) error {
 		return err
 	}
 	return nil
+}
+
+func withLogger(l *log.Logger) option {
+	return func(srv *server) {
+		srv.logger = l
+	}
 }
 
 func withAddr(addr string) option {
