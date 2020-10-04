@@ -5,10 +5,24 @@ import (
 	"net/http"
 )
 
+type option func(*server) error
+
 type server struct {
 	Addr    string
 	handler http.Handler
 	db      DB
+}
+
+//newServer returns a server after applying all options
+func newServer(opts ...option) (*server, error) {
+	srv := &server{}
+	for _, opt := range opts {
+		err := opt(srv)
+		if err != nil {
+			return srv, err
+		}
+	}
+	return srv, nil
 }
 
 func start(srv *server) error {
