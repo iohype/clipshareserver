@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -9,6 +10,14 @@ import (
 
 // Key to retrieve uid from a context
 type uidKey struct{}
+
+func (s *server) uidFromContext(ctx context.Context) (string, error) {
+	val, ok := ctx.Value(uidKey{}).(string)
+	if !ok {
+		return "", fmt.Errorf("invalid UID in context")
+	}
+	return val, nil
+}
 
 //handleAuthed is a middleware that allows the request only if user is logged in
 func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
