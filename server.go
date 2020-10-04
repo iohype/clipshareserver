@@ -5,9 +5,10 @@ import (
 	"net/http"
 )
 
-type server struct{
-	Addr string
+type server struct {
+	Addr    string
 	handler http.Handler
+	db      DB
 }
 
 func start(srv *server) error {
