@@ -17,6 +17,7 @@ func (s *server) Error(w http.ResponseWriter, r *http.Request, err error, status
 
 //JSON writes data out in JSON format
 func (s *server) JSON(w http.ResponseWriter, r *http.Request, data interface{}, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {

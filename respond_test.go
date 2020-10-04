@@ -28,4 +28,5 @@ func TestServer_JSON(t *testing.T) {
 	srv.JSON(rr, nil, testData, http.StatusNotImplemented)
 
 	is.Equal(rr.Code, http.StatusNotImplemented)
+	is.Equal("application/json", rr.Header().Get("Content-Type"))
 }
