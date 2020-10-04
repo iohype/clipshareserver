@@ -19,6 +19,7 @@ type server struct {
 func newServer(opts ...option) *server {
 	srv := &server{}
 	// Init defaults
+	srv.Addr = ":8080"
 	srv.handler = srv.routes()
 	srv.logger = log.New(os.Stdout, "", log.LstdFlags)
 	// Apply all options

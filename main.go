@@ -16,13 +16,13 @@ func main() {
 
 //run the app using out as the standard output
 func run(out io.Writer) error {
-	handler := func(s *server) {
-		// Wrap the server's routes with a logging middleware
-		s.handler = handlers.LoggingHandler(out, s.routes())
+	loggedHandler := func(s *server) {
+		// Wrap the server's handler with a logging middleware
+		s.handler = handlers.LoggingHandler(out, s.handler)
 	}
 	srv := newServer(
 		withAddr(getAddr()),
-		handler,
+		loggedHandler,
 	)
 	return start(srv)
 }
