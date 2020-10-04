@@ -23,6 +23,7 @@ func run(out io.Writer) error {
 	srv := newServer(
 		withAddr(getAddr()),
 		loggedHandler,
+		withLogger(log.New(out, "", log.LstdFlags)),
 	)
 	return start(srv)
 }
