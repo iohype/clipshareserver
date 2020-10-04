@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type option func(*server) error
+type option func(*server)
 
 type server struct {
 	Addr    string
@@ -14,15 +14,12 @@ type server struct {
 }
 
 //newServer returns a server after applying all options
-func newServer(opts ...option) (*server, error) {
+func newServer(opts ...option) *server {
 	srv := &server{}
 	for _, opt := range opts {
-		err := opt(srv)
-		if err != nil {
-			return srv, err
-		}
+		opt(srv)
 	}
-	return srv, nil
+	return srv
 }
 
 func start(srv *server) error {
@@ -32,6 +29,24 @@ func start(srv *server) error {
 		return err
 	}
 	return nil
+}
+
+func withAddr(addr string) option {
+	return func(srv *server) {
+		srv.Addr = addr
+	}
+}
+
+func withHandler(h http.Handler) option {
+	return func(srv *server) {
+		srv.handler = h
+	}
+}
+
+func withDB(db DB) option {
+	return func(srv *server) {
+		srv.db	= db
+	}
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
