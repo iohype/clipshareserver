@@ -14,7 +14,8 @@ import (
 func TestServer_Error(t *testing.T) {
 	is := mis.New(t)
 
-	srv := &server{}
+	srv, err := newServer()
+	is.NoErr(err)
 	rr := httptest.NewRecorder()
 	testErr := errors.New("something bad happened")
 	srv.Error(rr, nil, testErr, http.StatusNotImplemented)
@@ -25,7 +26,8 @@ func TestServer_Error(t *testing.T) {
 func TestServer_JSON(t *testing.T) {
 	is := mis.New(t)
 
-	srv := &server{}
+	srv, err := newServer()
+	is.NoErr(err)
 	rr := httptest.NewRecorder()
 	testData := "Data"
 	srv.JSON(rr, nil, testData, http.StatusNotImplemented)
