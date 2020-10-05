@@ -10,10 +10,7 @@ func (s *server) routes() http.Handler {
 
 	// Register paths
 	// GET /clips
-	r.HandleFunc("/clips", s.handleAuthed(
-		s.verifier,
-		s.handleClipsGet(),
-	)).Methods(http.MethodGet)
+	r.HandleFunc("/clips", s.handleAuthed(s.handleClipsGet())).Methods(http.MethodGet)
 
 	return r
 }

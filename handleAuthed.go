@@ -11,11 +11,11 @@ import (
 type uidKey struct{}
 
 //handleAuthed is a middleware that allows the request only if user is logged in
-func (s *server) handleAuthed(vfy verifier, next http.HandlerFunc) http.HandlerFunc {
+func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idToken := tokenFromHeader(r)
 		// Verify token, verifier should handle caching itself
-		uid, err := vfy.verify(r.Context(), idToken)
+		uid, err := s.verifier.verify(r.Context(), idToken)
 		if err != nil {
 			s.Error(w, r, err, http.StatusUnauthorized)
 			return

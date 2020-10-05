@@ -28,9 +28,10 @@ func TestAuth(t *testing.T) {
 	is := mis.New(t)
 
 	handlerOpt := func(s *server) {
-		s.handler = s.handleAuthed(testAuthVerifier{}, testAuthHandler)
+		s.handler = s.handleAuthed(testAuthHandler)
 	}
-	srv := newServer(handlerOpt)
+	srv, err := newServer(handlerOpt, withVerifier(testAuthVerifier{}))
+	is.NoErr(err)
 
 	tests := []struct {
 		token string
