@@ -9,10 +9,11 @@ import (
 type option func(*server)
 
 type server struct {
-	Addr    string
-	handler http.Handler
-	db      DB
-	logger  *log.Logger
+	Addr     string
+	handler  http.Handler
+	db       DB
+	logger   *log.Logger
+	verifier verifier
 }
 
 //newServer returns a server after applying all options
@@ -36,6 +37,12 @@ func start(srv *server) error {
 		return err
 	}
 	return nil
+}
+
+func withVerifier(vfy verifier) option {
+	return func(srv *server) {
+		srv.verifier = vfy
+	}
 }
 
 func withLogger(l *log.Logger) option {
