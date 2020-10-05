@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 )
 
 // Key used to retrieve uid from context
@@ -13,30 +12,13 @@ type uidKey struct{}
 
 //handleAuthed is a middleware that allows the request only if user is logged in
 func (s *server) handleAuthed(vfy verifier, next http.HandlerFunc) http.HandlerFunc {
-	var (
-		mu          sync.RWMutex
-		authedCache = make(map[string]string)
-	)
 	return func(w http.ResponseWriter, r *http.Request) {
 		idToken := tokenFromHeader(r)
-		// Read from cache
-		mu.RLock()
-		uid, ok := authedCache[idToken]
-		mu.RUnlock()
-		if !ok {
-			// token not in cache, try FirebaseAuth
-			// err is declared this way here to avoid creating a new uid variable
-			//in this if block due to the use of the := shortcut
-			var err error
-			uid, err = vfy.verify(idToken)
-			if err != nil {
-				s.Error(w, r, err, http.StatusUnauthorized)
-				return
-			}
-			// Save to cache
-			mu.Lock()
-			authedCache[idToken] = uid
-			mu.Unlock()
+		// Verify token, verifier should handle caching itself
+		uid, err := vfy.verify(idToken)
+		if err != nil {
+			s.Error(w, r, err, http.StatusUnauthorized)
+			return
 		}
 		// Pass the uid down to handlers
 		ctx := s.uidInContext(r.Context(), uid)
@@ -64,8 +46,4 @@ func tokenFromHeader(r *http.Request) string {
 	idToken = strings.TrimPrefix(idToken, "Bearer")
 	idToken = strings.TrimSpace(idToken)
 	return idToken
-}
-
-func verifyToken(idToken string) (string, error) {
-	return "user1369", nil //fmt.Errorf("not implemented")
 }
