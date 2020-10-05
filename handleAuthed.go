@@ -12,8 +12,7 @@ import (
 type uidKey struct{}
 
 //handleAuthed is a middleware that allows the request only if user is logged in
-func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
-	// Cache hit prevents asking FirebaseAuth to verify id token
+func (s *server) handleAuthed(vfy verifier, next http.HandlerFunc) http.HandlerFunc {
 	var (
 		mu          sync.RWMutex
 		authedCache = make(map[string]string)
@@ -29,7 +28,7 @@ func (s *server) handleAuthed(next http.HandlerFunc) http.HandlerFunc {
 			// err is declared this way here to avoid creating a new uid variable
 			//in this if block due to the use of the := shortcut
 			var err error
-			uid, err = verifyToken(idToken)
+			uid, err = vfy.verify(idToken)
 			if err != nil {
 				s.Error(w, r, err, http.StatusUnauthorized)
 				return
