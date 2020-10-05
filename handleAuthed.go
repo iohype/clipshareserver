@@ -15,7 +15,7 @@ func (s *server) handleAuthed(vfy verifier, next http.HandlerFunc) http.HandlerF
 	return func(w http.ResponseWriter, r *http.Request) {
 		idToken := tokenFromHeader(r)
 		// Verify token, verifier should handle caching itself
-		uid, err := vfy.verify(idToken)
+		uid, err := vfy.verify(r.Context(), idToken)
 		if err != nil {
 			s.Error(w, r, err, http.StatusUnauthorized)
 			return

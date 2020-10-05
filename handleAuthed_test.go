@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	mis "github.com/matryer/is"
 	"net/http"
@@ -16,7 +17,7 @@ func testAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 type testAuthVerifier struct{}
 
-func (t testAuthVerifier) verify(idToken string) (string, error) {
+func (t testAuthVerifier) verify(ctx context.Context, idToken string) (string, error) {
 	if idToken == "TestAuthPass" {
 		return "user1369", nil
 	}
