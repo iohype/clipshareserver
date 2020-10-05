@@ -75,7 +75,7 @@
             "type": "string"
           },
           "timestamp": {
-            "type": "string"
+            "type": "number"
           },
           "data": {
             "type": "string"
