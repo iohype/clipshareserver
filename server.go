@@ -23,6 +23,7 @@ func newServer(opts ...option) (*server, error) {
 	srv.Addr = ":8080"
 	srv.handler = srv.routes()
 	srv.logger = log.New(os.Stdout, "", log.LstdFlags)
+	srv.db = newInMemDB()
 
 	// Apply all options
 	for _, opt := range opts {
