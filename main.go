@@ -20,11 +20,14 @@ func run(out io.Writer) error {
 		// Wrap the server's handler with a logging middleware
 		s.handler = handlers.LoggingHandler(out, s.handler)
 	}
-	srv := newServer(
+	srv, err := newServer(
 		withAddr(getAddr()),
 		loggedHandler,
 		withLogger(log.New(out, "", log.LstdFlags)),
 	)
+	if err != nil {
+		return err
+	}
 	return start(srv)
 }
 

@@ -17,17 +17,23 @@ type server struct {
 }
 
 //newServer returns a server after applying all options
-func newServer(opts ...option) *server {
+func newServer(opts ...option) (*server, error) {
 	srv := &server{}
 	// Init defaults
 	srv.Addr = ":8080"
 	srv.handler = srv.routes()
 	srv.logger = log.New(os.Stdout, "", log.LstdFlags)
+	// Default verifier is fireauth
+	var err error
+	srv.verifier, err = newFireAuth()
+	if err != nil {
+		return nil, err
+	}
 	// Apply all options
 	for _, opt := range opts {
 		opt(srv)
 	}
-	return srv
+	return srv, nil
 }
 
 func start(srv *server) error {
