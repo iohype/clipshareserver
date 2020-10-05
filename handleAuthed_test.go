@@ -24,6 +24,25 @@ func (t testAuthVerifier) verify(ctx context.Context, idToken string) (string, e
 	return "", fmt.Errorf("invalid authentication token")
 }
 
+func TestUidInContext(t *testing.T) {
+	is := mis.New(t)
+	srv, err := newServer()
+	is.NoErr(err)
+
+	ctx := context.Background()
+	uid := "user1369"
+	modCtx := srv.uidInContext(ctx, uid)
+
+	rUId, err := srv.uidFromContext(modCtx)
+	is.NoErr(err)
+	is.Equal(rUId, uid)
+
+	_, err = srv.uidFromContext(context.Background())
+	if err == nil {
+		t.Errorf("Expected error")
+	}
+}
+
 func TestAuth(t *testing.T) {
 	is := mis.New(t)
 
