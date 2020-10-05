@@ -17,12 +17,16 @@ func (s *server) handleClipsGet() http.HandlerFunc {
 		}
 
 		var clips []Clip
+
 		if since != "" {
 			s.logger.Printf("Getting clips for uid %s since %s\n", userID, since)
+			// convert since to int64
 			timestamp, err := strconv.ParseInt(since, 10, 64)
 			if err != nil {
 				s.Error(w, r, err, http.StatusBadRequest)
+				return
 			}
+			// get clips since the timestamp
 			clips, err = s.db.GetSince(userID, timestamp)
 		} else {
 			s.logger.Printf("Getting all clips for uid %s", userID)
