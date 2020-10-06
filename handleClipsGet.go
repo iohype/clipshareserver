@@ -9,8 +9,8 @@ func (s *server) handleClipsGet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		since := r.URL.Query().Get("since")
 
-		// Get userID from context
-		userID, err := s.uidFromContext(r.Context())
+		// Get uid from context
+		uid, err := s.uidFromContext(r.Context())
 		if err != nil {
 			s.Error(w, r, err, http.StatusInternalServerError)
 			return
@@ -19,7 +19,7 @@ func (s *server) handleClipsGet() http.HandlerFunc {
 		var clips []Clip
 
 		if since != "" {
-			s.logger.Printf("Getting clips for uid %s since %s\n", userID, since)
+			s.logger.Printf("Getting clips for uid %s since %s\n", uid, since)
 			// convert since to int64
 			timestamp, err := strconv.ParseInt(since, 10, 64)
 			if err != nil {
@@ -27,10 +27,10 @@ func (s *server) handleClipsGet() http.HandlerFunc {
 				return
 			}
 			// get clips since the timestamp
-			clips, err = s.db.GetSince(userID, timestamp)
+			clips, err = s.db.GetSince(uid, timestamp)
 		} else {
-			s.logger.Printf("Getting all clips for uid %s", userID)
-			clips, err = s.db.Get(userID)
+			s.logger.Printf("Getting all clips for uid %s", uid)
+			clips, err = s.db.Get(uid)
 		}
 		if err != nil {
 			s.Error(w, r, err, http.StatusInternalServerError)
