@@ -14,8 +14,7 @@ func (s *server) handleClipsPost(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&clip)
 	if err != nil {
 		// If there is something wrong with the request body, return a 400 status
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		s.Error(w, r, err, 400)
 	}
 
 	uid := clip.ID
@@ -23,9 +22,7 @@ func (s *server) handleClipsPost(w http.ResponseWriter, r *http.Request) {
 
 	if err = s.db.Put(uid, clip); err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
-		w.WriteHeader(http.StatusInternalServerError)
-		s.logger.Printf("There was an issue %s\n", err)
-		return
+		s.Error(w, r, err, 500)
 	}
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(clip)
