@@ -6,11 +6,6 @@ import (
 	"time"
 )
 
-type inutClip struct {
-	ID        string `json:"id"`
-	Timestamp int64 `json:"timestamp"`
-	Data      string `json:"data"`
-}
 
 func (s *server) handleClipsPost(w http.ResponseWriter, r *http.Request) {
 	// Parse and decode the request body into a new `Clip` instance
