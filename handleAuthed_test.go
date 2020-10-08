@@ -29,18 +29,15 @@ func TestUidInContext(t *testing.T) {
 	srv, err := newServer()
 	is.NoErr(err)
 
-	ctx := context.Background()
 	uid := "user1369"
-	modCtx := srv.uidInContext(ctx, uid)
+	modCtx := srv.uidInContext(context.Background(), uid)
 
-	rUId, err := srv.uidFromContext(modCtx)
+	gotUid, err := srv.uidFromContext(modCtx)
 	is.NoErr(err)
-	is.Equal(rUId, uid)
+	is.Equal(gotUid, uid)
 
 	_, err = srv.uidFromContext(context.Background())
-	if err == nil {
-		t.Errorf("Expected error")
-	}
+	is.True(err != nil)
 }
 
 func TestAuth(t *testing.T) {
