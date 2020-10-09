@@ -17,23 +17,23 @@ func newInMemDB() *inMemDb {
 	}
 }
 
-func (m *inMemDb) Get(uid string) ([]Clip, error) {
+func (m *inMemDb) GetUserClips(uid string) ([]Clip, error) {
 	m.mu.RLock()
 	clips, ok := m.data[uid]
 	m.mu.RUnlock()
 	if !ok {
-		return []Clip{}, fmt.Errorf("uid does not exist")
+		return clips, fmt.Errorf("uid does not exist")
 	}
 	return clips, nil
 }
 
-func (m *inMemDb) GetSince(userID string, timestamp int64) ([]Clip, error) {
+func (m *inMemDb) GetUserClipsSince(userID string, timestamp int64) ([]Clip, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	clipsForUser, ok := m.data[userID]
 	if !ok {
-		return []Clip{}, fmt.Errorf("uid does not exist")
+		return clipsForUser, fmt.Errorf("uid does not exist")
 	}
 
 	var clipsSinceTimestamp = make([]Clip, 0)
@@ -45,16 +45,7 @@ func (m *inMemDb) GetSince(userID string, timestamp int64) ([]Clip, error) {
 	return clipsSinceTimestamp, nil
 }
 
-func (m *inMemDb) Put(uid string, clip Clip) error {
-	if uid == "" {
-		return fmt.Errorf("invalid uid")
-	}
-	if clip.Data == "" || clip.Timestamp == 0 || clip.ID == "" {
-		return fmt.Errorf("clip is empty")
-	}
-	if clip.Timestamp < 0 {
-		return fmt.Errorf("clip has negative time")
-	}
+func (m *inMemDb) InsertUserClip(uid string, clip Clip) error {
 	m.mu.Lock()
 	m.data[uid] = append(m.data[uid], clip)
 	m.mu.Unlock()

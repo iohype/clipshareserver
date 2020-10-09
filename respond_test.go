@@ -44,7 +44,7 @@ func TestServer_Error(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			rr := httptest.NewRecorder()
-			srv.Error(rr, nil, tc.err, tc.code)
+			srv.Error(rr, tc.err, tc.code)
 			gotJSON, err := ioutil.ReadAll(rr.Body)
 			is.NoErr(err)
 
@@ -94,7 +94,7 @@ func TestServer_JSON(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.description, func(t *testing.T) {
 			rr := httptest.NewRecorder()
-			srv.JSON(rr, nil, tc.data, tc.code)
+			srv.JSON(rr, tc.data, tc.code)
 			gotJSON, err := ioutil.ReadAll(rr.Body)
 			is.NoErr(err)
 

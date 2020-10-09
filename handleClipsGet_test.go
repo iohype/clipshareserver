@@ -2,86 +2,64 @@ package main
 
 import (
 	"context"
-	mis "github.com/matryer/is"
+	"github.com/matryer/is"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-var testDataClipsGet = map[string][]Clip{
-	"user1369": {
-		{
-			"1001",
-			currentTimeUnixNano(),
-			"test data content",
-		},
-		{
-			"1002",
-			currentTimeUnixNano(),
-			"test data content",
-		},
-		{
-			"1005",
-			currentTimeUnixNano(),
-			"test data other content",
-		},
-	},
-	"user42": {},
-}
-
-func TestClipsGet(t *testing.T) {
-	is := mis.New(t)
-	m := newInMemDB()
-	m.data = testDataClipsGet
+func TestHandleClipsGet(t *testing.T) {
+	is := is.New(t)
+	m, err := getTestMemDB()
+	is.NoErr(err)
 	srv, err := newServer(withDB(m))
 	is.NoErr(err)
 
 	req := httptest.NewRequest(http.MethodGet, "/clips", nil)
 	badSinceReq := httptest.NewRequest(http.MethodGet, "/clips?since=abcdefg", nil)
 	goodSinceReq := httptest.NewRequest(http.MethodGet, "/clips?since=1000000", nil)
-	ctxWithUid := context.WithValue(context.Background(), uidKey{}, "user1369")
+	ctx := context.Background()
+
+	userWithData := "user1369"
+	userWithNoData := "userEmpty"
 
 	testCases := []struct {
-		description string
-		rq       *http.Request
-		code     int
+		description  string
+		req          *http.Request
+		expectedCode int
 	}{
 		{
-			"GoodRequestNoContextUidTest",
-			req,
-			http.StatusInternalServerError,
-		},
-		{
-			"BadSinceRequestNoContextUidTest",
-			badSinceReq,
-			http.StatusInternalServerError,
-		},
-		{
-			"GoodSinceRequestNoContextUidTest",
-			goodSinceReq,
-			http.StatusInternalServerError,
-		},
-		{
-			"GoodRequestWithContextUidTest",
-			req.WithContext(ctxWithUid),
+			"GetClipsUIDHasDataTest",
+			req.WithContext(putUserIDInContext(ctx, userWithData)),
 			http.StatusOK,
 		},
 		{
-			"BadSinceRequestWithContextUidTest",
-			badSinceReq.WithContext(ctxWithUid),
+			"GetClipsUIDHasNoDataTest",
+			req.WithContext(putUserIDInContext(ctx, userWithNoData)),
+			http.StatusOK,
+		},
+		{
+			"GetClipsBadSinceQueryTest",
+			badSinceReq.WithContext(putUserIDInContext(ctx, userWithData)),
 			http.StatusBadRequest,
 		},
 		{
-			"GoodSinceRequestWithContextUidTest",
-			goodSinceReq.WithContext(ctxWithUid),
+			"GetClipsGoodSinceUIDHasDataTest",
+			goodSinceReq.WithContext(putUserIDInContext(ctx, userWithData)),
+			http.StatusOK,
+		},
+		{
+			"GetClipsGoodSinceUIDHasNoDataTest",
+			goodSinceReq.WithContext(putUserIDInContext(ctx, userWithNoData)),
 			http.StatusOK,
 		},
 	}
 
 	for _, tc := range testCases {
-		rr := httptest.NewRecorder()
-		srv.handleClipsGet().ServeHTTP(rr, tc.rq)
-
-		is.Equal(rr.Code, tc.code)
+		t.Run(tc.description, func(t *testing.T) {
+			rr := httptest.NewRecorder()
+			srv.handleClipsGet().ServeHTTP(rr, tc.req)
+			is.Equal(tc.expectedCode, rr.Code)
+		})
 	}
 }

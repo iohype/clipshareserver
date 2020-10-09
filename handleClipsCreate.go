@@ -14,23 +14,23 @@ func (s *server) handleClipsCreate() http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&clip)
 		if err != nil {
 			// If there is something wrong with the request body, return a 400 status
-			s.Error(w, r, err, http.StatusBadRequest)
+			s.Error(w, err, http.StatusBadRequest)
 			return
 		}
 
-		uid, err := s.uidFromContext(r.Context())
+		userID, err := getUserIDFromContext(r.Context())
 		if err != nil {
-			s.Error(w, r, err, http.StatusInternalServerError)
+			s.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 
 		clip.Timestamp = time.Now().UnixNano()
 
-		if err = s.db.Put(uid, clip); err != nil {
+		if err = s.db.InsertUserClip(userID, clip); err != nil {
 			// If there is any issue with inserting into the database, return a 500 error
-			s.Error(w, r, err, http.StatusInternalServerError)
+			s.Error(w, err, http.StatusInternalServerError)
 			return
 		}
-		s.JSON(w, r, clip, http.StatusCreated)
+		s.JSON(w, clip, http.StatusCreated)
 	}
 }
