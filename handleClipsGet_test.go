@@ -8,40 +8,74 @@ import (
 	"testing"
 )
 
-type testClipsDB struct {}
-
-func (t *testClipsDB) Get(string) ([]Clip, error) {
-	return []Clip{}, nil
-}
-
-func (t *testClipsDB) GetSince(string, int64) ([]Clip, error) {
-	return []Clip{}, nil
-}
-
-func (t *testClipsDB) Put(string, Clip) error {
-	panic("implement me")
+var testDataClipsGet = map[string][]Clip{
+	"user1369": {
+		{
+			"1001",
+			currentTimeUnixNano(),
+			"test data content",
+		},
+		{
+			"1002",
+			currentTimeUnixNano(),
+			"test data content",
+		},
+		{
+			"1005",
+			currentTimeUnixNano(),
+			"test data other content",
+		},
+	},
+	"user42": {},
 }
 
 func TestClipsGet(t *testing.T) {
 	is := mis.New(t)
-	srv, err := newServer(withDB(&testClipsDB{}))
+	m := newInMemDB()
+	m.data = testDataClipsGet
+	srv, err := newServer(withDB(m))
 	is.NoErr(err)
 
 	req := httptest.NewRequest(http.MethodGet, "/clips", nil)
-	badSinceReq := httptest.NewRequest(http.MethodGet, "/clips?since=user136", nil)
+	badSinceReq := httptest.NewRequest(http.MethodGet, "/clips?since=abcdefg", nil)
 	goodSinceReq := httptest.NewRequest(http.MethodGet, "/clips?since=1000000", nil)
-	ctxWithUid := context.WithValue(context.Background(), uidKey{}, "user13690")
+	ctxWithUid := context.WithValue(context.Background(), uidKey{}, "user1369")
 
 	testCases := []struct {
-		rq   *http.Request
-		code int
+		description string
+		rq       *http.Request
+		code     int
 	}{
-		{req, http.StatusInternalServerError},
-		{badSinceReq, http.StatusInternalServerError},
-		{goodSinceReq, http.StatusInternalServerError},
-		{req.WithContext(ctxWithUid), http.StatusOK},
-		{badSinceReq.WithContext(ctxWithUid), http.StatusBadRequest},
-		{goodSinceReq.WithContext(ctxWithUid), http.StatusOK},
+		{
+			"GoodRequestNoContextUidTest",
+			req,
+			http.StatusInternalServerError,
+		},
+		{
+			"BadSinceRequestNoContextUidTest",
+			badSinceReq,
+			http.StatusInternalServerError,
+		},
+		{
+			"GoodSinceRequestNoContextUidTest",
+			goodSinceReq,
+			http.StatusInternalServerError,
+		},
+		{
+			"GoodRequestWithContextUidTest",
+			req.WithContext(ctxWithUid),
+			http.StatusOK,
+		},
+		{
+			"BadSinceRequestWithContextUidTest",
+			badSinceReq.WithContext(ctxWithUid),
+			http.StatusBadRequest,
+		},
+		{
+			"GoodSinceRequestWithContextUidTest",
+			goodSinceReq.WithContext(ctxWithUid),
+			http.StatusOK,
+		},
 	}
 
 	for _, tc := range testCases {
