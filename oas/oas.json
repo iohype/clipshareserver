@@ -61,6 +61,29 @@
             "$ref": "#/components/responses/requires_authentication"
           }
         }
+      },
+      "post": {
+        "summary": "Create clip",
+        "description": "Create and share clip with user devices",
+        "operationId": "clips/create",
+        "requestBody": {
+          "$ref": "#/components/schemas/clip"
+        },
+        "responses": {
+          "201": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/clip"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/requires_authentication"
+          }
+        }
       }
     }
   },

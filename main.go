@@ -1,40 +1,41 @@
 package main
 
 import (
-	"github.com/gorilla/handlers"
-	"io"
 	"log"
 	"net"
 	"os"
 )
 
+const defaultRunAddr = ":8080"
+
 func main() {
-	if err := run(os.Stdout); err != nil {
+	err := runApp()
+	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-//run the app using out as the standard output
-func run(out io.Writer) error {
-	loggedHandler := func(s *server) {
-		// Wrap the server's handler with a logging middleware
-		s.handler = handlers.LoggingHandler(out, s.handler)
-	}
-	srv, err := newServer(
-		withAddr(getAddr()),
-		loggedHandler,
-		withLogger(log.New(out, "", log.LstdFlags)),
-	)
+func runApp() error {
+	srv, err := getRunServer()
 	if err != nil {
 		return err
 	}
 	return start(srv)
 }
 
-func getAddr() string {
+func getRunServer() (*server, error) {
+	runAddr := getRunAddr()
+	return newServer(withAddr(runAddr))
+}
+
+func getRunAddr() string {
 	port, ok := os.LookupEnv("PORT")
 	if !ok {
-		return ":8080"
+		return defaultRunAddr
 	}
+	return addrFromPort(port)
+}
+
+func addrFromPort(port string) string {
 	return net.JoinHostPort("", port)
 }

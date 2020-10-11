@@ -9,31 +9,30 @@ import (
 type option func(*server)
 
 type server struct {
+	// Addr is the address to run the server on
 	Addr     string
+
 	handler  http.Handler
 	db       DB
 	logger   *log.Logger
 	verifier verifier
 }
 
-//newServer returns a server after applying all options
 func newServer(opts ...option) (*server, error) {
 	srv := &server{}
-
-	srv.Addr = ":8080"
 	srv.handler = srv.routes()
 	srv.logger = log.New(os.Stdout, "", log.LstdFlags)
 	srv.db = newInMemDB()
 
-	// Apply all options
 	for _, opt := range opts {
 		opt(srv)
 	}
 
+	//error-able defaults are set here to allow users provide alternate impls.
+	//They will not be used if the user provides an alternative.
+	var err error
 	if srv.verifier == nil {
-		// Default verifier is fireauth
-		var err error
-		srv.verifier, err = newFireAuth()
+		srv.verifier, err = newFirebaseVerifier()
 		if err != nil {
 			return nil, err
 		}

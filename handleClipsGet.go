@@ -7,36 +7,52 @@ import (
 
 func (s *server) handleClipsGet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		since := r.URL.Query().Get("since")
-
-		// Get uid from context
-		uid, err := s.uidFromContext(r.Context())
+		userID, err := getUserIDFromContext(r.Context())
 		if err != nil {
-			s.Error(w, r, err, http.StatusInternalServerError)
+			s.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 
-		var clips []Clip
-
-		if since != "" {
-			s.logger.Printf("Getting clips for uid %s since %s\n", uid, since)
-			// convert since to int64
-			timestamp, err := strconv.ParseInt(since, 10, 64)
-			if err != nil {
-				s.Error(w, r, err, http.StatusBadRequest)
-				return
-			}
-			// get clips since the timestamp
-			clips, err = s.db.GetSince(uid, timestamp)
+		sinceParam := r.URL.Query().Get("since")
+		if sinceParam != "" {
+			s.handleGetUserClipsSince(w, userID, sinceParam)
 		} else {
-			s.logger.Printf("Getting all clips for uid %s", uid)
-			clips, err = s.db.Get(uid)
+			s.handleGetAllUserClips(w, userID)
 		}
-		if err != nil {
-			s.Error(w, r, err, http.StatusInternalServerError)
-			return
-		}
-
-		s.JSON(w, r, clips, http.StatusOK)
 	}
 }
+
+func (s *server) handleGetUserClipsSince(w http.ResponseWriter, userID string, sinceParam string) {
+	s.logger.Printf("Getting clips for userID %s since %s\n", userID, sinceParam)
+
+	timestamp, err := paramToTimestamp(sinceParam)
+	if err != nil {
+		s.Error(w, err, http.StatusBadRequest)
+		return
+	}
+
+	clips, err := s.db.GetUserClipsSince(userID, timestamp)
+	if err != nil {
+		s.logger.Println(err)
+		clips = []Clip{}
+	}
+
+	s.JSON(w, clips, http.StatusOK)
+}
+
+func (s *server) handleGetAllUserClips(w http.ResponseWriter, userID string) {
+	s.logger.Printf("Getting all clips for userID %s", userID)
+
+	clips, err := s.db.GetUserClips(userID)
+	if err != nil {
+		s.logger.Println(err)
+		clips = []Clip{}
+	}
+
+	s.JSON(w, clips, http.StatusOK)
+}
+
+func paramToTimestamp(s string) (int64, error) {
+	return strconv.ParseInt(s, 10, 64)
+}
+
